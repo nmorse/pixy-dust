@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="ble.js">
+
+    </script>
+    <title>Web Bluetooth</title>
+  </head>
+  <body>
+    <button onClick='connect()'>connect</button>
+    <button onClick='disconnect()'>disconnect</button>
+    <br />
+    <button onClick='send_text("-1", "r", "cmdr")'>-1 r</button>
+    <button onClick='send_text("-1", "g", "cmdg")'>-1 g</button>
+    <button onClick='send_text("-1", "b", "cmdb")'>-1 b</button>
+    <button onClick='send_text("1", "r", "cmdr")'>1 r</button>
+    <button onClick='send_text("1", "g", "cmdg")'>1 g</button>
+    <button onClick='send_text("1", "b", "cmdb")'>1 b</button>
+
+    <button onClick='send_text("i 3.1415 * 10 / t 9 / + sin 2 / 1 -", "r", "cmdr")'>sin r</button>
+    <button onClick='send_text("i 7 + 3.1415 * 10 / t 9 / + sin 2 / 1 -", "g", "cmdg")'>sin g</button>
+    <button onClick='send_text("i 14 + 3.1415 * 10 / t 9 / + sin 2 / 1 -", "b", "cmdb")'>sin b</button>
+
+    <br />
+    <input type="text" id="cmdr" name="cmdr" required
+           size="50">
+    <button onClick='send_text(document.getElementById("cmdr").value, "r")'>red</button>
+    <br />
+    <input type="text" id="cmdg" name="cmdg" required
+           size="50">
+    <button onClick='send_text(document.getElementById("cmdg").value, "g")'>green</button>
+    <br />
+    <input type="text" id="cmdb" name="cmdb" required
+           size="50">
+    <button onClick='send_text(document.getElementById("cmdb").value, "b")'>blue</button>
+  </body>
+</html>

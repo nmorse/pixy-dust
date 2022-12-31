@@ -32,8 +32,9 @@ async def ble_listener():
                     print("last part", line[-2:].decode('utf-8'))
                     msg += line.decode('utf-8')
                     if line[-2:].decode('utf-8') == "\n\n":
+                        new_da = json.loads(msg)
                         with open("/recent_data.json", "w") as fp2:
-                            fp2.write(msg)
+                            fp2.write(json.dumps(new_da))
         await asyncio.sleep(.3333)
 
 # using Adafruit 16x9 Charlieplexed PWM LED Matrix
@@ -96,11 +97,13 @@ async def main():
     interrupt_ble_lis = asyncio.create_task(ble_listener())
     await asyncio.gather(interrupt_task7, interrupt_task11, 
         interrupt_animator, interrupt_ble_con, interrupt_ble_lis)
-
-def init_data(stri):
-    print (stri)
+import json
+def init_data_and_animation(jsonstr):
+    global da
+    print (jsonstr)
+    da = json.loads(jsonstr)
 
 with open("/recent_data.json", "r") as fp:
-    init_data(fp.read())
+    init_data_and_animation(fp.read())
 
 asyncio.run(main())

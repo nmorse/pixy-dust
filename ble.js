@@ -1,5 +1,5 @@
 
-var myDevice;
+var myDevice = null;
 var uartService = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
 var uartRxCharacteristic;
 var uartTxCharacteristic;
@@ -75,15 +75,18 @@ function disconnect() {
     myDevice.gatt.disconnect();
     uartRxCharacteristic = null;
     uartTxCharacteristic = null;
+    myDevice = null;
   }
 }
 
-async function send_text(data) {
+async function send_text(strdata) {
+  dataObj = JSON.parse(strdata);
+  data = JSON.stringify(dataObj);
   while(data.length > 0) {
     let chunk = data.slice(0, 18);
     data = data.slice(18);
     if (uartTxCharacteristic) {
-      special_continue_char = data.length ? '\n' : String.fromCharCode(3); //end of transmission" (EOT, code 4)
+      special_continue_char = data.length ? '\n' : String.fromCharCode(3); //end of transmission" (EOT, code 3)
       // console.log("chunk+special_continue_char", chunk+special_continue_char)
       var sent = await uartTxCharacteristic.writeValueWithResponse(new TextEncoder().encode(chunk+special_continue_char));
       console.log(sent);

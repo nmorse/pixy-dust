@@ -21,8 +21,9 @@ async def ble_connetor():
         await asyncio.sleep(10)
 
 msg = ""
+flow = {}
 async def ble_listener():
-    global msg
+    global msg, flow
     while True:
         if ble.connected:
             if uart_service.in_waiting:
@@ -31,12 +32,12 @@ async def ble_listener():
                     print("full", line.decode('utf-8'))
                     
                     msg += line[:-1].decode('utf-8')
-                    print(msg)
-                    if line[-1:] == 0b011: #EOT code 3
+                    print(line[-1:])
+                    if line[-1:] == b'\x03': #EOT code 3
                         print("last part", msg)
-                        new_da = json.loads(msg)
+                        flow = json.loads(msg)
                         with open("/recent_data.json", "w") as fp2:
-                            fp2.write(json.dumps(new_da))
+                            fp2.write(json.dumps(flow))
                         msg = ""
         await asyncio.sleep(.3333)
 
@@ -47,7 +48,7 @@ display = Display(i2c, address=0x75)
 
 
 async def catch_pin_transitions(pin):
-    global animate_delay
+    global flow
     """Print a message when pin goes low and when it goes high."""
     with keypad.Keys((pin,), value_when_pressed=False) as keys:
         while True:
@@ -55,12 +56,10 @@ async def catch_pin_transitions(pin):
             if event:
                 if event.pressed:
                     if pin == board.D7:
-                        animate_delay *= 0.5
-                        load_default_images(15)
+                        flow["animate"]["delay"] *= 0.5
 
                     if pin == board.D11:
-                        animate_delay *= 2
-                        load_default_images(0)
+                        flow["animate"]["delay"] *= 2
 
                 elif event.released:
                     pass
@@ -68,21 +67,19 @@ async def catch_pin_transitions(pin):
             await asyncio.sleep(0)
 
 animate = True
-frame_dir = 1
 frame_i = 0
-animate_delay = 2
 
 async def animator():
-    global frame_i
+    global frame_i, flow
     while True:
         if animate:
-            frame_i += frame_dir
-            if frame_i > 7:
-                frame_i = 0
-            if frame_i < 0:
-                frame_i = 7
+            frame_i += flow["animate"]["dir"]
+            if frame_i > flow["animate"]["last"]:
+                frame_i = flow["animate"]["first"]
+            if frame_i < flow["animate"]["first"]:
+                frame_i = flow["animate"]["last"]
             display.frame(frame_i)
-        await asyncio.sleep(animate_delay)
+        await asyncio.sleep(flow["animate"]["delay"])
 
 def load_default_images(x):
     for f in range(8):
@@ -92,7 +89,6 @@ def load_default_images(x):
 
 
 async def main():
-    load_default_images(0)
     interrupt_task7 = asyncio.create_task(catch_pin_transitions(board.D7))
     interrupt_task11 = asyncio.create_task(catch_pin_transitions(board.D11))
     interrupt_animator = asyncio.create_task(animator())
@@ -103,9 +99,16 @@ async def main():
 
 import json
 def init_data_and_animation(jsonstr):
-    global da
-    print (jsonstr)
-    da = json.loads(jsonstr)
+    global flow
+    # print (jsonstr)
+    flow = json.loads(jsonstr)
+    for f in range(8):
+        display.frame(f, show=False)
+        for y in range(9):
+            col = flow["frames"][f][y]
+            for x in range(16):
+                display.pixel(x, y, int(col[x], 16)*2)
+
 
 with open("/recent_data.json", "r") as fp:
     init_data_and_animation(fp.read())

@@ -32,7 +32,7 @@ async def ble_listener():
                     
                     msg += line[:-1].decode('utf-8')
                     print(msg)
-                    if line[-2:].decode('utf-8') == '\n\n':
+                    if line[-1:] == 0b011: #EOT code 3
                         print("last part", msg)
                         new_da = json.loads(msg)
                         with open("/recent_data.json", "w") as fp2:

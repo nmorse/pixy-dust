@@ -80,10 +80,10 @@ function disconnect() {
 
 async function send_text(data) {
   while(data.length > 0) {
-    let chunk = data.slice(0, 18);
-    data = data.slice(18);
+    let chunk = data.slice(0, 17);
+    data = data.slice(17);
     if (uartTxCharacteristic) {
-      special_continue_char = data.length ? '\n' : '\n\n' 
+      special_continue_char = data.length ? '\n' : '\n\n';
       // console.log("chunk+special_continue_char", chunk+special_continue_char)
       var sent = await uartTxCharacteristic.writeValueWithResponse(new TextEncoder().encode(chunk+special_continue_char));
       console.log(sent);

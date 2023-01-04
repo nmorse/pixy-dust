@@ -30,7 +30,6 @@ async def ble_listener():
                 line = uart_service.readline()
                 if line:
                     print("full", line.decode('utf-8'))
-                    
                     msg += line[:-1].decode('utf-8')
                     print(line[-1:])
                     if line[-1:] == b'\x03': #EOT code 3
@@ -39,7 +38,9 @@ async def ble_listener():
                         with open("/recent_data.json", "w") as fp2:
                             fp2.write(json.dumps(flow))
                         msg = ""
-        await asyncio.sleep(.3333)
+                        await asyncio.sleep(2)
+                await asyncio.sleep(0)
+        await asyncio.sleep(0)
 
 # using Adafruit 16x9 Charlieplexed PWM LED Matrix
 from adafruit_is31fl3731.matrix import Matrix as Display

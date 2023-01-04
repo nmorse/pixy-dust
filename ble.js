@@ -39,11 +39,15 @@ function connect(){
         console.log("got Tx characteristic")
         uartTxCharacteristic = characteristics[c];
       }
+      var status_ele = document.getElementById("status_message");
+      status_ele.innerText = `Nice, we are connected, so far so good.`;  
     }
   })
   .catch(function(error) {
     // catch any errors:
     console.error('Connection failed!', error);
+    var status_ele = document.getElementById("status_message");
+    status_ele.innerText = `tried to connect, but ${error}`;
   });
 }
 
@@ -76,23 +80,38 @@ function disconnect() {
     uartRxCharacteristic = null;
     uartTxCharacteristic = null;
     myDevice = null;
+    var status_ele = document.getElementById("status_message");
+    status_ele.innerText = "Disconnected"
   }
 }
 
 async function send_text(strdata) {
+  var status_ele = document.getElementById("status_message");
+  try {
   dataObj = JSON.parse(strdata);
   data = JSON.stringify(dataObj);
+  }
+  catch(error) {
+    status_ele.innerText = "Data (json) format could have been erronious, here is what your computer said:"+ error;
+    return;
+  }
+  var msg = "Sending data to your pixy-dust ";
+  status_ele.innerText = msg;
   while(data.length > 0) {
     let chunk = data.slice(0, 18);
     data = data.slice(18);
     if (uartTxCharacteristic) {
       special_continue_char = data.length ? '\n' : String.fromCharCode(3); //end of transmission" (EOT, code 3)
       // console.log("chunk+special_continue_char", chunk+special_continue_char)
-      var sent = await uartTxCharacteristic.writeValueWithResponse(new TextEncoder().encode(chunk+special_continue_char));
-      console.log(sent);
+      await uartTxCharacteristic.writeValueWithResponse(new TextEncoder().encode(chunk+special_continue_char));
+      msg = msg + ".";
+      status_ele.innerText = msg;
     }
     else {
       console.log("no TX characteristic of the service availible");
+      status_ele.innerText = "Transmitting data ran into a problem";
+      return;
     }
   }
+  status_ele.innerText = "Updated your pixy-dust :)";
 }

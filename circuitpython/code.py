@@ -35,6 +35,7 @@ async def ble_listener():
                     if line[-1:] == b'\x03': #EOT code 3
                         print("last part", msg)
                         flow = json.loads(msg)
+                        resetAllFramesfromFlow()
                         with open("/recent_data.json", "w") as fp2:
                             fp2.write(json.dumps(flow))
                         msg = ""
@@ -98,11 +99,7 @@ async def main():
     await asyncio.gather(interrupt_task7, interrupt_task11, 
         interrupt_animator, interrupt_ble_con, interrupt_ble_lis)
 
-import json
-def init_data_and_animation(jsonstr):
-    global flow
-    # print (jsonstr)
-    flow = json.loads(jsonstr)
+def resetAllFramesfromFlow():
     for f in range(8):
         display.frame(f, show=False)
         for y in range(9):
@@ -110,6 +107,13 @@ def init_data_and_animation(jsonstr):
             for x in range(16):
                 display.pixel(x, y, int(col[x], 16)*2)
 
+
+import json
+def init_data_and_animation(jsonstr):
+    global flow
+    # print (jsonstr)
+    flow = json.loads(jsonstr)
+    resetAllFramesfromFlow()
 
 with open("/recent_data.json", "r") as fp:
     init_data_and_animation(fp.read())

@@ -5,14 +5,15 @@
     <script type="text/javascript" src="ble.js">
 
     </script>
-    <title>Bluetooth low energy for pixy-dust</title>
+    <title>pixy-dust update via BLE (Bluetooth Low Energy)</title>
   </head>
   <body>
-    <button onClick='connect()'>Ble Connect</button>
+    <button onClick='connect()'>BLE Connect</button>
     <button onClick='disconnect()'>Disconnect</button>
     <br />
     <textarea id="cmdr" name="cmdr"
     rowsize="6" colsize="60"></textarea>
     <button onClick='send_text(document.getElementById("cmdr").value)'>send</button>
+    <p id="status_message">Disconnected</p>
   </body>
 </html>
